@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +50,9 @@ public class BookStoreServiceImpl implements BookStoreService {
 	public List<BookResponseVO> searchBook(SearchRequestVO searchRequestVO) {
 		List<Book> books = new ArrayList<>();
 		try {
-			books = bookStoreRepository.searchBook(searchRequestVO.getIsbn(), searchRequestVO.getTitle(),
-					searchRequestVO.getAuthor());
+			books = bookStoreRepository.searchBook(StringUtils.lowerCase(searchRequestVO.getIsbn()),
+					StringUtils.lowerCase(searchRequestVO.getTitle()),
+					StringUtils.lowerCase(searchRequestVO.getAuthor()));
 			if (books.isEmpty()) {
 				log.info("No result found");
 			}
