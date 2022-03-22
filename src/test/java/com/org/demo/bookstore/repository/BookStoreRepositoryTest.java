@@ -12,7 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import com.org.demo.bookstore.model.Book;
 
 @DataJpaTest
-class TaskRepositoryTest {
+class BookStoreRepositoryTest {
 
 	@Autowired
 	private TestEntityManager testEntityManager;
