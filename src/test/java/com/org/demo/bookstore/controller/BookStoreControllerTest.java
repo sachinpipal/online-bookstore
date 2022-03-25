@@ -1,6 +1,8 @@
 package com.org.demo.bookstore.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.org.demo.bookstore.request.BookRequestVO;
+import com.org.demo.bookstore.request.SearchRequestVO;
 import com.org.demo.bookstore.response.BookResponseVO;
 import com.org.demo.bookstore.service.BookStoreService;
 import com.org.demo.bookstore.util.ObjectMapperUtil;
@@ -69,6 +72,69 @@ class BookStoreControllerTest {
 		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
 		int status = mvcResult.getResponse().getStatus();
 		Assertions.assertEquals(400, status);
+	}
+
+	@Test
+	final void testSearchBookSuccess() throws Exception {
+		SearchRequestVO searchRequestVO = new SearchRequestVO();
+		searchRequestVO.setIsbn("90923");
+		searchRequestVO.setTitle("Java Development");
+		searchRequestVO.setAuthor("M L Malhotra");
+		BookResponseVO bookResponseVO = new BookResponseVO();
+		bookResponseVO.setIsbn("90923");
+		bookResponseVO.setTitle("Java Development");
+		bookResponseVO.setAuthor("M L Malhotra");
+		bookResponseVO.setPrice("900");
+		List<BookResponseVO> bookRequestVOList = new ArrayList<>();
+		bookRequestVOList.add(bookResponseVO);
+		Mockito.when(bookStoreService.searchBook(searchRequestVO)).thenReturn(bookRequestVOList);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/v1/books/search")
+				.accept(MediaType.APPLICATION_JSON).param("isbn", "90923").param("title", "Java Development")
+				.param("author", "M L Malhotra").contentType(MediaType.APPLICATION_JSON);
+		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		Assertions.assertEquals(200, status);
+	}
+
+	@Test
+	final void testSearchBookFailure() throws Exception {
+		SearchRequestVO searchRequestVO = new SearchRequestVO();
+		searchRequestVO.setIsbn("90923");
+		searchRequestVO.setTitle("Java Development");
+		searchRequestVO.setAuthor("M L Malhotra");
+		List<BookResponseVO> bookRequestVOList = new ArrayList<>();
+		Mockito.when(bookStoreService.searchBook(searchRequestVO)).thenReturn(bookRequestVOList);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/v1/books/search")
+				.accept(MediaType.APPLICATION_JSON).param("isbn", "90923").param("title", "Java Development")
+				.param("author", "M L Malhotra").contentType(MediaType.APPLICATION_JSON);
+		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		Assertions.assertEquals(200, status);
+	}
+
+	@Test
+	final void testSearchMediaCoverageSuccess() throws Exception {
+		List<String> titleList = new ArrayList<>();
+		titleList.add("Java Development");
+		Mockito.when(bookStoreService.searchMediaCoverage("Java Development")).thenReturn(titleList);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders
+				.get("/v1/books/search-media-coverage/title/{title}", "Java Development")
+				.accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON);
+		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		Assertions.assertEquals(200, status);
+	}
+
+	@Test
+	final void testSearchMediaCoverageSuccess_whenEmptyList() throws Exception {
+		List<String> titleList = new ArrayList<>();
+		Mockito.when(bookStoreService.searchMediaCoverage("Java Development")).thenReturn(titleList);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders
+				.get("/v1/books/search-media-coverage/title/{title}", "Java Development")
+				.accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON);
+		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		Assertions.assertEquals(200, status);
 	}
 
 }

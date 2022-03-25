@@ -10,9 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -22,10 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-	@ResponseBody
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -39,8 +37,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(BookStoreBaseException.class)
-	@ResponseBody
-	public ResponseEntity<MessageResponse> handleUpssException(final Exception exception,
+	public ResponseEntity<MessageResponse> handleBookStoreException(final Exception exception,
 			final HttpServletRequest request) {
 		MessageResponse messageResponse = new MessageResponse("failure", exception.getMessage());
 		return new ResponseEntity<>(messageResponse, HttpStatus.INTERNAL_SERVER_ERROR);

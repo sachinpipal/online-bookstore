@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,8 @@ import io.swagger.v3.oas.annotations.info.Info;
  * Controller for the bookstore projects.Acceptance Criteria are as follows :
  * <li>1.Add new book to the bookstore.
  * <li>2.Search book by isbn/title/author
- * 
+ * <li>3.Search media coverage of book by title.
+ * <li>4.Buy book by title.
  */
 @OpenAPIDefinition(info = @Info(title = "BookStore API", version = "1.0", description = "Book store Information"))
 @RestController
@@ -51,6 +53,15 @@ public class BookStoreController {
 			return ResponseEntity.ok(new MessageResponse("No result found", bookResponseVOList));
 		}
 		return ResponseEntity.ok(new MessageResponse("Books searched successfully !!", bookResponseVOList));
+	}
+
+	@GetMapping("/search-media-coverage/title/{title}")
+	public ResponseEntity<MessageResponse> searchMediaCoverage(@PathVariable("title") String title) {
+		List<String> titleList = bookStoreService.searchMediaCoverage(title);
+		if (titleList.isEmpty()) {
+			return ResponseEntity.ok(new MessageResponse("No result found", titleList));
+		}
+		return ResponseEntity.ok(new MessageResponse("Media coverage searched successfully !!", titleList));
 	}
 
 }

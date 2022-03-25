@@ -12,4 +12,6 @@ public interface BookStoreService {
 
 	public List<BookResponseVO> searchBook(SearchRequestVO searchRequestVO);
 
+	public List<String> searchMediaCoverage(String title);
+
 }

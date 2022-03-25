@@ -1,7 +1,10 @@
 package com.org.demo.bookstore.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.PersistenceException;
@@ -10,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.org.demo.bookstore.exception.BookStoreBaseException;
 import com.org.demo.bookstore.model.Book;
@@ -17,6 +21,7 @@ import com.org.demo.bookstore.repository.BookStoreRepository;
 import com.org.demo.bookstore.request.BookRequestVO;
 import com.org.demo.bookstore.request.SearchRequestVO;
 import com.org.demo.bookstore.response.BookResponseVO;
+import com.org.demo.bookstore.response.PostResponseVO;
 import com.org.demo.bookstore.service.BookStoreService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +33,14 @@ public class BookStoreServiceImpl implements BookStoreService {
 
 	@Autowired
 	private BookStoreRepository bookStoreRepository;
+	@Autowired
+	private WebClient webClient;
 
 	@Override
 	public BookResponseVO addNewBook(BookRequestVO bookRequestVO) {
 		Book book = Book.builder().isbn(bookRequestVO.getIsbn()).author(bookRequestVO.getAuthor())
-				.price(bookRequestVO.getPrice().doubleValue()).title(bookRequestVO.getTitle()).build();
+				.price(bookRequestVO.getPrice().doubleValue()).title(bookRequestVO.getTitle())
+				.quantity(bookRequestVO.getQuantity()).build();
 		Book savedBook = null;
 		try {
 			savedBook = bookStoreRepository.save(book);
@@ -66,7 +74,31 @@ public class BookStoreServiceImpl implements BookStoreService {
 					+ ", title :" + searchRequestVO.getTitle() + ", author :" + searchRequestVO.getAuthor(),
 					ex.getCause());
 		}
-		return books.stream().map(book -> new BookResponseVO(book)).collect(Collectors.toList());
+		return books.stream().map(book -> getBookResponseInstance(book)).collect(Collectors.toList());
 	}
 
+	private BookResponseVO getBookResponseInstance(Book book) {
+		return new BookResponseVO(book);
+	}
+
+	@Override
+	public List<String> searchMediaCoverage(String title) {
+		try {
+			List<PostResponseVO> postResponseVOList = webClient.get().uri("/posts").attribute("title", title)
+					.header("Locale", Locale.ENGLISH.getDisplayLanguage()).retrieve().bodyToFlux(PostResponseVO.class)
+					.collectList().block();
+			if (Objects.nonNull(postResponseVOList)) {
+				return postResponseVOList.stream()
+						.filter(postResponseVO -> postResponseVO.getTitle().contains(title)
+								|| postResponseVO.getBody().contains(title))
+						.map(PostResponseVO::getTitle).collect(Collectors.toList());
+			}
+		} catch (Exception ex) {
+			log.error("Exception occured in " + this.getClass().getName()
+					+ "method :searchMediaCoverage () for  title :" + title, ex.getCause());
+			throw new BookStoreBaseException("No result found with given search, title: " + title, ex.getCause());
+
+		}
+		return Collections.emptyList();
+	}
 }

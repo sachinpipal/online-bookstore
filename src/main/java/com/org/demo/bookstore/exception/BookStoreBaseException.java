@@ -17,4 +17,8 @@ public class BookStoreBaseException extends RuntimeException {
 
 	}
 
+	public BookStoreBaseException(String message) {
+		super(message);
+	}
+
 }
