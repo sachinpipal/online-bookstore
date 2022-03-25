@@ -3,6 +3,7 @@ package com.org.demo.bookstore.request;
 import java.math.BigDecimal;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -21,7 +22,9 @@ public class BookRequestVO {
 	@NotBlank(message = "Please provide valid author name.")
 	private String author;
 	@NotNull(message = "Please provide a price")
-    @DecimalMin("1.00")
-	private BigDecimal  price;
+	@Min(value = 1)
+	private Integer quantity;
+	@NotNull(message = "Please provide a price")
+	@DecimalMin("1.00")
+	private BigDecimal price;
 }
-	

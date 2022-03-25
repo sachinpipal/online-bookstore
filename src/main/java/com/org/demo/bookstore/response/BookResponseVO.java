@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookResponseVO {
 
-	private Integer Id;
+	private Integer id;
 	private String title;
 	private String isbn;
 	private String author;
 	private String price;
 
 	public BookResponseVO(Book book) {
-		this.Id = book.getId();
+		this.id = book.getId();
 		this.title = book.getTitle();
 		this.isbn = book.getIsbn();
 		this.author = book.getAuthor();

@@ -1,6 +1,7 @@
 package com.org.demo.bookstore.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,8 @@ public interface BookStoreRepository extends JpaRepository<Book, Integer> {
 
 	@Query(value = "FROM  Book b")
 	List<Book> getAllBooks();
+
+	@Query(value = "FROM  Book b where b.title = ?1 and b.quantity>=?2")
+	Optional<Book> getBookByTitleAndQuantity(String title, Integer quantity);
 
 }
