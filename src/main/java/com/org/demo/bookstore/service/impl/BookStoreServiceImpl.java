@@ -3,7 +3,6 @@ package com.org.demo.bookstore.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -84,9 +83,8 @@ public class BookStoreServiceImpl implements BookStoreService {
 	@Override
 	public List<String> searchMediaCoverage(String title) {
 		try {
-			List<PostResponseVO> postResponseVOList = webClient.get().uri("/posts").attribute("title", title)
-					.header("Locale", Locale.ENGLISH.getDisplayLanguage()).retrieve().bodyToFlux(PostResponseVO.class)
-					.collectList().block();
+			List<PostResponseVO> postResponseVOList = webClient.get().uri("/posts").attribute("title", title).retrieve()
+					.bodyToFlux(PostResponseVO.class).collectList().block();
 			if (Objects.nonNull(postResponseVOList)) {
 				return postResponseVOList.stream()
 						.filter(postResponseVO -> postResponseVO.getTitle().contains(title)
