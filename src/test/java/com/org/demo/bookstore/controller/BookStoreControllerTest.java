@@ -2,6 +2,7 @@ package com.org.demo.bookstore.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,9 +21,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.org.demo.bookstore.request.BookRequestVO;
+import com.org.demo.bookstore.request.OrderRequestVO;
 import com.org.demo.bookstore.request.SearchRequestVO;
 import com.org.demo.bookstore.response.BookResponseVO;
+import com.org.demo.bookstore.response.OrderResponseVO;
 import com.org.demo.bookstore.service.BookStoreService;
+import com.org.demo.bookstore.service.OrderService;
 import com.org.demo.bookstore.util.ObjectMapperUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +35,8 @@ class BookStoreControllerTest {
 	private MockMvc mockMvc;
 	@Mock
 	private BookStoreService bookStoreService;
+	@Mock
+	private OrderService orderService;
 	@InjectMocks
 	private BookStoreController bookStoreController;
 
@@ -46,11 +52,13 @@ class BookStoreControllerTest {
 		bookRequestVO.setTitle("Java Development");
 		bookRequestVO.setAuthor("M L Malhotra");
 		bookRequestVO.setPrice(new BigDecimal(900));
+		bookRequestVO.setQuantity(1);
 		BookResponseVO bookResponseVO = new BookResponseVO();
 		bookResponseVO.setIsbn("90923");
 		bookResponseVO.setTitle("Java Development");
 		bookResponseVO.setAuthor("M L Malhotra");
 		bookResponseVO.setPrice("900");
+		bookRequestVO.setQuantity(1);
 		Mockito.when(bookStoreService.addNewBook(bookRequestVO)).thenReturn(bookResponseVO);
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/v1/books/add-book")
 				.accept(MediaType.APPLICATION_JSON).content(ObjectMapperUtil.objectToJson(bookRequestVO))
@@ -132,6 +140,25 @@ class BookStoreControllerTest {
 		RequestBuilder requestBuilder = MockMvcRequestBuilders
 				.get("/v1/books/search-media-coverage/title/{title}", "Java Development")
 				.accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON);
+		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		Assertions.assertEquals(200, status);
+	}
+
+	@Test
+	final void testBuyBookSuccess() throws Exception {
+		OrderRequestVO orderRequestVO = new OrderRequestVO();
+		orderRequestVO.setTitle("Java Development");
+		orderRequestVO.setQuantity(1);
+		List<OrderRequestVO> orderRequestVOList = new ArrayList<>();
+		orderRequestVOList.add(orderRequestVO);
+		OrderResponseVO orderResponseVO = new OrderResponseVO();
+		orderResponseVO.setOrderId("90923");
+		orderResponseVO.setTitleList(Arrays.asList("Java Development", "Spring Dev"));
+		Mockito.when(orderService.buyBook(orderRequestVOList)).thenReturn(orderResponseVO);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/v1/books/buy-book")
+				.accept(MediaType.APPLICATION_JSON).content(ObjectMapperUtil.objectToJson(orderRequestVOList))
+				.contentType(MediaType.APPLICATION_JSON);
 		MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
 		int status = mvcResult.getResponse().getStatus();
 		Assertions.assertEquals(200, status);
