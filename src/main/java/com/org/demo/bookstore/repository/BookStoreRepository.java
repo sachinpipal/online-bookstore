@@ -15,9 +15,6 @@ public interface BookStoreRepository extends JpaRepository<Book, Integer> {
 	@Query(value = "FROM  Book b WHERE lower(b.isbn) like  %?1% OR lower(b.title) like %?2% OR  lower(b.author) like %?3% ")
 	List<Book> searchBook(String isbn, String title, String author);
 
-	@Query(value = "FROM  Book b")
-	List<Book> getAllBooks();
-
 	@Query(value = "FROM  Book b where b.title = ?1 and b.quantity>=?2")
 	Optional<Book> getBookByTitleAndQuantity(String title, Integer quantity);
 
